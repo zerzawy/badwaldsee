@@ -136,6 +136,10 @@ _Bool stdButtonIsPressed(const unsigned short stdButton);
 #ifdef SPDR60
 	_Bool stdButtonFRTTimerIsRunning(void);
 	void stdButtonFRTTimerReset(void);
+	_Bool stdButtonFHTTimerIsRunning(void);
+	void stdButtonFHTTimerReset(void);
+	_Bool stdButtonUfGTTimerIsRunning(void);
+	void stdButtonUfGTTimerReset(void);
 #endif
 
 /*@maynotreturn@*/

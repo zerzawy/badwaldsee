@@ -120,13 +120,15 @@ unsigned short shuntrouteGetNr(void);
 
 _Bool shuntrouteIsFree(struct sShuntroute * const pShuntroute);
 
-void shuntrouteCancelDest(const struct sDwarf const * pDest);
-#ifdef DOMINO55
-	void shuntrouteOneButton(const struct sDwarf const * pDwarf);
-#endif
 void shuntrouteTwoButtons(const struct sDwarf const * pDwarf1, const struct sDwarf const * pDwarf2);
+
 #ifdef SPDR60
-void shuntrouteCancelTwoButtons(const struct sDwarf const * pDwarf1, const struct sDwarf const * pDwarf2);
+	void shuntrouteCancel(const struct sDwarf const * pDwarf1, const struct sDwarf const * pDwarf2);
+#endif
+
+#ifdef DOMINO55
+	void shuntrouteCancel(const struct sDwarf const * pDest);
+	void shuntrouteOneButton(const struct sDwarf const * pDwarf);
 #endif
 
 _Bool shuntrouteGetName(const struct sShuntroute * const pShuntroute, char * const name);

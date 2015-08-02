@@ -327,7 +327,7 @@ static void turnoutSinglePrint(const struct sTurnout * const ptr)
 		buttonGetName(turnoutGetButton(ptr), name);
 		fprintf(stdout, "\t\t\t\tTaste\t%s\n", name);
 	}
-	if(NULL == turnoutGetMotor(ptr)) {
+	if(NONEVALUE == turnoutGetMotor(ptr)) {
 		fprintf(stdout, "\t\t\t\tMotor\tLEER\n");
 	}
 	else {

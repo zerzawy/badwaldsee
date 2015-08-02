@@ -101,6 +101,7 @@ struct sRoute
 	_Bool			destButton;		/**< true if destination button pressed	*/
 	_Bool			twoButtons;		/**< true if both buttons are pressed	*/
 	_Bool			dissolve;		/**< true if the train route shall be cleared by hand	*/
+	_Bool			detour;			/**< true if the auxiliary route shall be set	*/
 	_Bool			toHalt;			/**< true if the shuntrouts signal felt back to halt	*/
 	unsigned short		partsAddPosition;	/**< number of train route parts	*/
 	struct sRoutePart 	pPart[NRROUTEPARTS]; 	/**< parts of which the route is made	*/
@@ -131,9 +132,15 @@ struct sRoute * routeFind(const char * const name);
 
 void routesProcess(void);
 
-void routeCancel(const struct sMain const * pDest);
+#ifdef SPDR60
+	void routeCancel(const struct sMain const * pMain1, const struct sMain const * pMain2);
+#endif
+#ifdef DOMINO55
+	void routeCancel(const struct sMain const * pDest);
+#endif
+
 void routeOneButton(const struct sMain const * pMain);
-void routeTwoButtons(const struct sMain const * pMain1, const struct sMain const * pMain2);
+void routeTwoButtons(const struct sMain const * pMain1, const struct sMain const * pMain2, const _Bool detour);
 
 _Bool routeGetName(const struct sRoute * const pRoute, /*@out@*/char * const name);
 void routeSetName(struct sRoute * const pRoute, const char * const name); 

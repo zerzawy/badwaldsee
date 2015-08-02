@@ -43,24 +43,31 @@
 #include "registers.h"
 #include "turnout.h"
 #include "dwarf.h"
+#include "mains.h"
 #include "button.h"
 
 
 static _Bool			m_buttonToDo = true;		/**< true if something to do */
 static int			m_buttonNrOfPressed = 0;
 static int			m_stdButtonNrOfPressed = 0;
-static unsigned short		m_buttonTurnoutNrOfPressed = 0;
-static unsigned short		m_buttonDwarfNrOfPressed = 0;
-static struct sTurnout * 	m_pTurnout = NULL;
-static struct sDwarf *	 	m_pDwarf1 = NULL;
-static struct sDwarf *	 	m_pDwarf2 = NULL;
+static struct sDwarf *		m_pDwarf1  = NULL;
+static struct sDwarf *		m_pDwarf2  = NULL;
+static struct sMain *		m_pMains1  = NULL;
+static struct sMain *		m_pMains2  = NULL;
+static struct sTurnout *	m_pTurnout1 = NULL;
+static struct sButton *		m_pButton1 = NULL;
+static struct sButton *		m_pButton2 = NULL;
 
 static struct sStandardButton m_StandardButton[TASTE_ANZ_SPEZIAL];
 
 static unsigned short m_nrButton = 0;	/**< Number of pushbuttons	*/
 #ifdef SPDR60
-	static const unsigned short FRTTIME = 50;	/**< active time of the FRT key 50cyles = 5s	*/
-	static unsigned short m_FRTTimer = 0;		/**< timer of the FRT key	*/
+	static const unsigned short 	FRTTIME = 50;		/**< active time of the FRT key 50cyles = 5s	*/
+	static const unsigned short 	FHTTIME = 50;		/**< active time of the FHT key 50cyles = 5s	*/
+	static const unsigned short 	UFGTTIME = 50;		/**< active time of the UfGT key 50cyles = 5s	*/
+	static unsigned short 		m_FRTTimer = 0;		/**< timer of the FRT key	*/
+	static unsigned short 		m_FHTTimer = 0;		/**< timer of the FHT key	*/
+	static unsigned short 		m_UfGTTimer = 0;	/**< timer of the UfGT key	*/
 #endif
 
 /*@owned@*/ /*@null@*/ struct sButton * m_pButton = NULL;	/**< Pointer to the first pushbotton structure	*/
@@ -209,20 +216,23 @@ _Bool buttonReadHW(void)
 
 	/* read the normal keys */
 	assert (NULL != ptr);
-	m_buttonNrOfPressed = 0;
-	m_buttonTurnoutNrOfPressed = turnoutNrButtons(& m_pTurnout);
-	m_buttonNrOfPressed += m_buttonTurnoutNrOfPressed;
 
-	m_buttonDwarfNrOfPressed = dwarfNrButtons(& m_pDwarf1, & m_pDwarf2);
-	m_buttonNrOfPressed += m_buttonDwarfNrOfPressed;
+	m_buttonNrOfPressed	= 0;
+	m_pButton1		= NULL;
+	m_pButton2		= NULL;
 
-/*	for (i = 0; i < m_nrButton; i++) 
+
+	for (i = 0; i < m_nrButton; i++) 
 	{
 		if(buttonSingleReadHW(ptr))
+		{
 			m_buttonNrOfPressed++;
+			m_pButton2 = m_pButton1;
+			m_pButton1 = ptr;
+		}
 		ptr++;
 	}
-*/	return m_buttonToDo;
+	return m_buttonToDo;
 }
 
 /**
@@ -242,8 +252,8 @@ void buttonProcess(void)
 {
 	/*@dependent@*/ struct sButton * buttonArray[2];
 
-	/* now decrement the timer of FRT button	*/
 	#ifdef SPDR60
+		/* now decrement the timer of FRT button	*/
 		if(stdButtonFRTTimerIsRunning())
 		{
 			if(1 == m_FRTTimer)
@@ -251,6 +261,26 @@ void buttonProcess(void)
 				LOG_STW("Zeitrelais der FRT erreicht 0");
 			}
 			m_FRTTimer--;
+		}
+
+		/* decrement of FHT button	*/
+		if(stdButtonFHTTimerIsRunning())
+		{
+			if(1 == m_FHTTimer)
+			{
+				LOG_STW("Zeitrelais der FHT erreicht 0");
+			}
+			m_FHTTimer--;
+		}
+
+		/* decrement of UfGT button	*/
+		if(stdButtonUfGTTimerIsRunning())
+		{
+			if(1 == m_UfGTTimer)
+			{
+				LOG_STW("Zeitrelais der UfGT erreicht 0");
+			}
+			m_UfGTTimer--;
 		}
 	#endif
 
@@ -264,10 +294,27 @@ void buttonProcess(void)
 	}
 
 	#ifdef SPDR60
-		/* set the FRT timer if the button is pushed	*/
-		if(m_StandardButton[TASTE_FRT].pressed)
+		if((1 == m_stdButtonNrOfPressed) && + (0 == m_buttonNrOfPressed))
 		{
-			m_FRTTimer = FRTTIME;
+			/* set the FRT timer if the button is pushed	*/
+			if(m_StandardButton[TASTE_FRT].pressed)
+			{
+				m_FRTTimer = FRTTIME;
+			}
+
+			/* set the FHT timer if the button is pushed	*/
+			if(m_StandardButton[TASTE_FHT].pressed)
+			{
+				m_FHTTimer = FHTTIME;
+			}
+
+			/* set the UfGT timer if the button is pushed	*/
+			if(m_StandardButton[TASTE_UfGT].pressed)
+			{
+				m_UfGTTimer = UFGTTIME;
+			}
+			m_buttonToDo = false;
+			return;
 		}
 	#endif
 	buttonArray[0] = NULL;
@@ -289,8 +336,9 @@ void buttonProcess(void)
 	 **************************/
 
 	/* If 2 dwarf buttons of them are pressed, it could be a shuntroute.	*/
-	if(2 == m_buttonDwarfNrOfPressed)
+	switch(dwarfNrButtons(& m_pDwarf1, & m_pDwarf2))
 	{
+	case 2:
 		/**
 		 * all cases with 2 dwarf buttons pressed
 		 */
@@ -298,7 +346,7 @@ void buttonProcess(void)
 			if(stdButtonFRTTimerIsRunning())
 			{
 				/* the shuntroute shall be cancelled	*/
-				shuntrouteCancelTwoButtons(m_pDwarf1, m_pDwarf2);
+				shuntrouteCancel(m_pDwarf1, m_pDwarf2);
 			}
 			else
 			{
@@ -314,10 +362,8 @@ void buttonProcess(void)
 
 		m_buttonToDo = false;
 		return;
-	}
 
-	if(1 == m_buttonDwarfNrOfPressed)
-	{
+	case 1:
 		/**
 		 * all cases with 1 dwarf button pressed
 		 */
@@ -354,13 +400,90 @@ void buttonProcess(void)
 				return;
 			}
 		#endif
+
+	default:
+		break;
 	}
-	
+
+	/***************************
+	 * main signals and routes *
+	 ***************************/
+
+	/* If 2 main signal buttons of them are pressed, it could be a route.	*/
+	switch(mainNrButtons(& m_pMains1, & m_pMains2))
+	{
+	case 2:
+		/**
+		 * all cases with 2 main signal buttons pressed
+		 */
+		#ifdef SPDR60
+			if(stdButtonFHTTimerIsRunning())
+			{
+				/* the shuntroute shall be cancelled	*/
+				routeCancel(m_pMains1, m_pMains2);
+			}
+			else
+			{
+				/* the shuntroute shall be established	*/
+				routeTwoButtons(m_pMains1, m_pMains2, stdButtonUfGTTimerIsRunning());
+			}
+		#endif
+
+		#ifdef DOMINO55
+			/* the shuntroute shall be established	*/
+			routeTwoButtons(m_pMains1, m_pMains2);
+		#endif
+
+		m_buttonToDo = false;
+		return;
+
+	case 1:
+		/**
+		 * all cases with 1 dwarf button pressed
+		 */
+		#ifdef SPDR60
+			if(m_StandardButton[TASTE_HaGT].pressed)
+			{
+				/* the dwarf shall be set to halt	*/
+				dwarfSetAspect(m_pDwarf1, SIG_DW_SH0);
+			}
+			m_buttonToDo = false;
+			return;
+		#endif
+
+		#ifdef DOMINO55
+			if(m_StandardButton[TASTE_BETRAUFL].pressed)
+			{
+				/* possibly a switchroute shall be reset 	*/
+				shuntrouteCancelDest(m_pMains1);
+
+				m_buttonToDo = false;
+				return;
+			}
+
+			if(1 ==  m_stdButtonNrOfPressed + m_buttonNrOfPressed)
+			{
+				/* now only this dwarf button is pressed. This is
+				 * necessary for DOMINO55 to know because the shunt-
+				 * route can be cancelled as long as the destination
+				 * button is not released
+				 */
+				shuntrouteOneButton(m_pMains1);
+
+				m_buttonToDo = false;
+				return;
+			}
+		#endif
+
+	default:
+		break;
+	}
+
 	/************
 	 * turnouts *
 	 ************/
 
-	if(1 == m_buttonTurnoutNrOfPressed) 
+	if(1 == turnoutNrButtons(& m_pTurnout1)) 
 	{
 		/**
 		 * cases for turnouts
@@ -375,7 +498,7 @@ void buttonProcess(void)
 				 * are pushed, thus all buttons found
 				 * now operate the turnout manually, if possible
 				 */
-				/*@void@*/ turnoutOperateManually(m_pTurnout);
+				/*@void@*/ turnoutOperateManually(m_pTurnout1);
 				m_buttonToDo = false;
 				return;
 			}
@@ -388,7 +511,7 @@ void buttonProcess(void)
 				 * are pushed, thus all buttons found
 				 * now operate the turnout manually, if possible
 				 */
-				/*@void@*/ turnoutOperateManually(m_pTurnout);
+				/*@void@*/ turnoutOperateManually(m_pTurnout1);
 				m_buttonToDo = false;
 				return;
 			}
@@ -539,6 +662,7 @@ _Bool stdButtonIsPressed(const unsigned short index)
 	 * Function to read the state of the timer (monoflop). After the
 	 * FRT key is pushed, this timer is running for FRTTIME cycles.
 	 * with stdButtonFRTTimerReset this timer can be reset.
+	 * @return	true if timer is still running
 	 */
 	_Bool stdButtonFRTTimerIsRunning(void)
 	{
@@ -553,6 +677,48 @@ _Bool stdButtonIsPressed(const unsigned short index)
 		LOG_STW("Zeitrelais der FRT wird auf 0 gesetzt");
 
 		m_FRTTimer = 0;
+	}
+
+	/**
+	 * Function to read the state of the timer (monoflop). After the
+	 * FHT key is pushed, this timer is running for FHTTIME cycles.
+	 * with stdButtonFHTTimerReset this timer can be reset.
+	 * @return	true if timer is still running
+	 */
+	_Bool stdButtonFHTTimerIsRunning(void)
+	{
+		return (m_FHTTimer > 0);
+	}
+
+	/**
+	 * Function to reset and stop the FHT key timer.
+	 */
+	void stdButtonFHTTimerReset(void)
+	{
+		LOG_STW("Zeitrelais der FHT wird auf 0 gesetzt");
+
+		m_FHTTimer = 0;
+	}
+
+	/**
+	 * Function to read the state of the timer (monoflop). After the
+	 * UfGT key is pushed, this timer is running for UFGTTIME cycles.
+	 * with stdButtonUfGTTimerReset this timer can be reset.
+	 * @return	true if timer is still running
+	 */
+	_Bool stdButtonUfGTTimerIsRunning(void)
+	{
+		return (m_UfGTTimer > 0);
+	}
+
+	/**
+	 * Function to reset and stop the UfGT key timer.
+	 */
+	void stdButtonUfGTTimerReset(void)
+	{
+		LOG_STW("Zeitrelais der UfGT wird auf 0 gesetzt");
+
+		m_UfGTTimer = 0;
 	}
 #endif
 

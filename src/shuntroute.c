@@ -63,11 +63,12 @@ static void * shuntrouteGetPart(const struct sShuntroute * const pShuntroute, co
  * Function to find the shuntroute by giving two dwarfs
  * @param pDwarf1	1st dwarf
  * @param pDwarf2	2nd dwarf
- * @return		Pointer to the shuntroute found, NULL if not found
- * @exception		exeption on m_pShuntroute = NULL
+ * @param pShuntroute	pointer to the shuntroute to be asked
+ * @return		true if pShuntroute has these dwarfs
  */
-static struct sShuntroute * shuntrouteFindByDwarfs(const struct sDwarf const * pDwarf1, 
-                                           	const struct sDwarf const * pDwarf2);
+_Bool shuntrouteFindByDwarfs(const struct sDwarf const * pDwarf1, 
+				const struct sDwarf const * pDwarf2,
+				const struct sShuntroute const * pShuntroute);
 
 /**
  * Constructor for the shuntroutes
@@ -1208,7 +1209,6 @@ void shuntrouteProcess(void)
 	}	
 }
 
-
 #ifdef DOMINO55
 	/**
 	 * Function for cancelling a Shuntroute either before it is established or
@@ -1217,7 +1217,7 @@ void shuntrouteProcess(void)
 	 * @param	pDwarf pointer to the destination dwarf of the shuntroute 
 	 *		to be canceled
 	 */
-	void shuntrouteCancelDest(const struct sDwarf * const pDwarf)
+	void shuntrouteCancel(const struct sDwarf * const pDwarf)
 	{
 		unsigned short		i;
 		struct sShuntroute *	pShuntroute;
@@ -1272,18 +1272,26 @@ void shuntrouteProcess(void)
 	 * @param pDwarf1	pointer to the button of the dwarf which button is pushed
 	 * @param pDwarf2	pointer to the second dwarf which button is pushed
 	 */
-	void shuntrouteCancelTwoButtons(const struct sDwarf const * pDwarf1, 
-					const struct sDwarf const * pDwarf2)
+	void shuntrouteCancel(const struct sDwarf const * pDwarf1, 
+				const struct sDwarf const * pDwarf2)
 	{
 		struct sShuntroute *	pShuntroute = m_pShuntroute;
+		unsigned short		i;
 
-		pShuntroute = shuntrouteFindByDwarfs(pDwarf1, pDwarf2);
-		if(NULL != pShuntroute)
+		for(i = 0; i < m_nrShuntroute; i++)
 		{
-			if(SIG_DW_SH1 != dwarfGetAspect(pShuntroute->start))
+			if(shuntrouteFindByDwarfs(pDwarf1, pDwarf2, pShuntroute))
 			{
-				pShuntroute->dissolve = true;
+				/* found connected shuntroute. Note: no return here
+				 *  because more than one shuntroute with this
+				 *  start/destination combination could exist
+				 */
+				if(SIG_DW_SH1 != dwarfGetAspect(pShuntroute->start))
+				{
+					pShuntroute->dissolve = true;
+				}
 			}
+			pShuntroute++;
 		}	 
 	}
 #endif
@@ -1296,40 +1304,42 @@ void shuntrouteProcess(void)
 void shuntrouteTwoButtons(const struct sDwarf const * pDwarf1, const struct sDwarf const * pDwarf2)
 {
 	struct sShuntroute *	pShuntroute = m_pShuntroute;
+	unsigned short		i;
 
-	pShuntroute = shuntrouteFindByDwarfs(pDwarf1, pDwarf2);
-	if(NULL != pShuntroute)
+	for(i = 0; i < m_nrShuntroute; i++)
 	{
-		pShuntroute->twoButtons = true;
-	}	 
+		if(shuntrouteFindByDwarfs(pDwarf1, pDwarf2, pShuntroute))
+		{
+			pShuntroute->twoButtons = true;
+			return;
+		}
+		pShuntroute++;
+	}
 }
 
-static struct sShuntroute * shuntrouteFindByDwarfs(const struct sDwarf const * pDwarf1, 
-                                           const struct sDwarf const * pDwarf2)
+_Bool shuntrouteFindByDwarfs(const struct sDwarf const * pDwarf1, 
+				const struct sDwarf const * pDwarf2,
+				const struct sShuntroute const * pShuntroute)
 {
-	unsigned short		i;
-	struct sShuntroute *	pShuntroute = m_pShuntroute;
-
-	assert(NULL != pShuntroute);
+	if(NULL == pShuntroute)
+	{
+		return false;
+	}
 
 	if(pDwarf1 == pDwarf2)
 	{
 		/* not really two buttons.	*/
-		return NULL;
+		return false;
 	}
 
-	for(i = 0; i < m_nrShuntroute; i++)
+	if(((pDwarf1 == pShuntroute->start) && (pDwarf2 == pShuntroute->dest))
+	|| ((pDwarf1 == pShuntroute->dest)  && (pDwarf2 == pShuntroute->start)))
 	{
-		if(((pDwarf1 == pShuntroute->start) && (pDwarf2 == pShuntroute->dest))
-		|| ((pDwarf1 == pShuntroute->dest)  && (pDwarf2 == pShuntroute->start)))
-		{
-			/* correct combination found	*/
-			return pShuntroute;
-		}
-		pShuntroute++;
+		/* correct combination found	*/
+		return true;
 	}
-	/* not found, return NULL	*/
-	return NULL;
+	/* else	*/
+	return false;
 }
 
 /**

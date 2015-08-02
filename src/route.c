@@ -51,6 +51,17 @@
 static unsigned short m_nrRoute = 0;	/**< Number of train routes	*/
 
 /**
+ * Function to find the route by giving two main signals
+ * @param pMains1	1st main signal
+ * @param pMains2	2nd main signal
+ * @param pRoute	pointer to the route to be asked
+ * @return		true if pRoute has these main signals
+ */
+static _Bool routeFindByMains(const struct sMain const * pMains1, 
+			const struct sMain const * pMains2,
+			const struct sRoute const * pRoute);
+
+/**
  * Constructor for the train routes
  * @param n		number of train routes to be created
  * @exception		Calls exit if no RAM available
@@ -82,6 +93,7 @@ void routes(const unsigned short nr)
 		pRoute->destButton	= false;
 		pRoute->twoButtons	= false;
 		pRoute->dissolve	= false;
+		pRoute->detour		= false;
 		pRoute->toHalt		= false;
 		pRoute->partsAddPosition	= 0;
 		pRoute->headPosition	= -2;
@@ -1080,34 +1092,64 @@ void routesProcess(void)
 	}	
 }
 
-/**
- * Function for cancelling a Route either before it is established or
- * if it is not part of a route
- */
-void routeCancel(const struct sMain * const pMain)
-{
-	unsigned short		i;
-	struct sRoute *	pRoute;
-
-	LOG_INF("started");
-
-	pRoute = m_pRoute;
-	for(i = 0; i < m_nrRoute; i++)
+#ifdef SPDR60
+	/**
+	 * Function for cancelling a Route 
+	 * @param pMain1	pointer to one main signal of the route
+	 * @param pMain2	pointer to the other main signal of the route
+	 */
+	void routeCancel(const struct sMain * const pMain1, const struct sMain * const pMain2)
 	{
-		/* TODO find out if it really was this train route
-		 *      make sure the train route may be cancelled, only allowed if no
-		 *	 train route is active over this train route
-		 */
-		if(pMain == pRoute->dest)
-		{
-			pRoute->dissolve = true;
-		}
-		pRoute++;
-	}
-	LOG_INF("ended");
-}
+		struct sRoute *		pRoute = m_pRoute;
+		unsigned short		i;
 
+		LOG_INF("started");
+
+		for(i = 0; i < m_nrRoute; i++)
+		{
+			if(routeFindByMains(pMain1, pMain2, pRoute))
+			{
+				/* note: no return because more than one route can have this
+				 *  combination (auxiliary route) and this one should also
+				 *  be dissolved
+				 */
+				pRoute->dissolve = true;
+			}
+			pRoute++;
+		}
+		LOG_INF("ended");
+	}
+
+
+#endif
 #ifdef DOMINO55
+	/**
+	 * Function for cancelling a Route either before it is established or
+	 * if it is not part of a route
+	 * @param pMain		pointer to the main signal of the route
+	 */
+	void routeCancel(const struct sMain * const pMain)
+	{
+		unsigned short		i;
+		struct sRoute *		pRoute = m_pRoute;
+
+		LOG_INF("started");
+
+		for(i = 0; i < m_nrRoute; i++)
+		{
+			/* TODO find out if it really was this train route
+			 *      make sure the train route may be cancelled, only allowed if no
+			 *	 train route is active over this train route
+			 */
+			if(pMain == pRoute->dest)
+			{
+				pRoute->dissolve = true;
+			}
+			pRoute++;
+		}
+		LOG_INF("ended");
+	}
+
 	/**
 	 * Function called when only one mains button is pushed. This is important
 	 *  for storing the train route. Remember: as soon as the destination is not
@@ -1145,41 +1187,63 @@ void routeCancel(const struct sMain * const pMain)
  * Function called when only two mains buttons are pushed. 
  * @param pMain1	pointer to the button of the mains which button is pushed
  * @param pMain2	pointer to the second mains which button is pushed
+ * @param detour	to be set true if the detour route shall be set
  */
-void routeTwoButtons(const struct sMain const * pMain1, const struct sMain const * pMain2)
+void routeTwoButtons(const struct sMain const * pMain1, const struct sMain const * pMain2, const _Bool detour)
 {
+	struct sRoute *		pRoute = m_pRoute;
 	unsigned short		i;
-	struct sRoute *	pRoute;
-
-	pRoute = m_pRoute;
-	assert(NULL != pRoute);
-
-	if(pMain1 == pMain2)
-	{
-		/* not really two buttons.	*/
-		return;
-	}
 
 	for(i = 0; i < m_nrRoute; i++)
 	{
-		if(((pMain1 == pRoute->start) && (pMain2 == pRoute->dest))
-		|| ((pMain1 == pRoute->dest)  && (pMain2 == pRoute->start)))
+		if(routeFindByMains(pMain1, pMain2, pRoute))
 		{
-			/* register this train route	*/
-			pRoute->twoButtons = true;
-			return;
+			/* check if the route is a normal or an auxiliary route, then
+			 * register it accordingly
+			 */
+			if(detour == pRoute->detour)
+			{
+				pRoute->twoButtons = true;
+				pRoute->detour = detour;
+				return;
+			}
 		}
 		pRoute++;
 	}
 }
 
+static _Bool routeFindByMains(const struct sMain const * pMains1, 
+			const struct sMain const * pMains2,
+			const struct sRoute const * pRoute)
+{
+	if(NULL == pRoute)
+	{
+		return false;
+	}
+
+	if(pMains1 == pMains2)
+	{
+		/* not really two buttons.	*/
+		return false;
+	}
+
+	if(((pMains1 == pRoute->start) && (pMains2 == pRoute->dest))
+	|| ((pMains1 == pRoute->dest)  && (pMains2 == pRoute->start)))
+	{
+		/* correct combination found	*/
+		return true;
+	}
+	/* else	*/
+	return false;
+}
+
 /**
  * Function to get the name of a train route
  * @param pRoute	pointer to the train route
- * @param name	pointer to the string filled out with the name
- * 		of the turnout. Must be at least NAMELEN long
- * @return	true, if successful
- * @exception	assert on NULL pointer
+ * @param name		pointer to the string filled out with the name
+ * 			of the turnout. Must be at least NAMELEN long
+ * @return		true, if successful
+ * @exception		assert on NULL pointer
  */ 
 _Bool routeGetName(const struct sRoute * const pRoute, /*@out@*/ char * const name)
 {
@@ -1193,8 +1257,8 @@ _Bool routeGetName(const struct sRoute * const pRoute, /*@out@*/ char * const na
 /**
  * Function to set the name of a train route
  * @param pRoute	pointer to the train route
- * @param name	pointer to the string with the name 
- * @exception	assert on NULL pointer
+ * @param name		pointer to the string with the name 
+ * @exception		assert on NULL pointer
  */ 
 void routeSetName(struct sRoute * const pRoute, const char * const name)
 {
@@ -1205,7 +1269,7 @@ void routeSetName(struct sRoute * const pRoute, const char * const name)
 
 /**
  * Function to set the direction to the right
- * @param pRoute		pointer to the train route
+ * @param pRoute	pointer to the train route
  * @param toright	true if shunt route goes from left to right
  * @exception		assert on NULL pointer
  */
@@ -1218,7 +1282,7 @@ void routeSetToRight(struct sRoute * const pRoute, const _Bool toright)
 
 /**
  * Function to get the direction of the train route
- * @param pRoute		pointer to the train route
+ * @param pRoute	pointer to the train route
  * @return		true if shunt route goes from left to right
  * @exception		assert on NULL pointer
  */
@@ -1231,8 +1295,8 @@ _Bool routeGetToRight(const struct sRoute * const pRoute)
 
 /**
  * Function to get the start mains
- * @param pRoute		pointer to the train route
- * @return			pointer to the start mains
+ * @param pRoute	pointer to the train route
+ * @return		pointer to the start mains
  * @exception		assert on NULL pointer
  */
 struct sMain * routeGetStart(const struct sRoute * pRoute)
@@ -1244,7 +1308,7 @@ struct sMain * routeGetStart(const struct sRoute * pRoute)
 
 /**
  * Function to set the start mains
- * @param pRoute		pointer to the train route
+ * @param pRoute	pointer to the train route
  * @param start		pointer to the start mains
  * @exception		assert on NULL pointer
  */
@@ -1258,8 +1322,8 @@ void routeSetStart(struct sRoute * const pRoute, struct sMain * start)
 /**
  * Function to get the destination mains
  * @param pRoute	pointer to the train route
- * @return	pointer to the destination mains
- * @exception	assert on NULL pointer
+ * @return		pointer to the destination mains
+ * @exception		assert on NULL pointer
  */
 struct sMain * routeGetDest(const struct sRoute * pRoute)
 {
@@ -1283,7 +1347,7 @@ void routeSetDest(struct sRoute * const pRoute, struct sMain * dest)
 
 /**
 * Function to get the aspect of the main signal when this route is set
-* @param pRoute	pointer to the train route
+* @param pRoute		pointer to the train route
 * @return		mains signals aspect when this route is set
 * @exception		assert on NULL pointer
 */
@@ -1560,7 +1624,7 @@ struct sShuntroute * routeGetCondShuntroute(const struct sRoute * const pRoute, 
 
 /**
  * Function to add an occupied section which must be set before setting the train route
- * @param pRoute		pointer to the train route
+ * @param pRoute	pointer to the train route
  * @param pShuntroute	pointer to the condition section
  * @return		index, where the condition section has been inserted
  * @exception		Assertion on NULL pointer or too many route parts
