@@ -33,8 +33,8 @@
  * Spreitenbacher Eisenbahn Amateur Klub SPEAK
  * www.speak.li
  * $Author: kurt $
- * $Date: 2015-05-18 22:31:02 +0200 (Mon, 18. Mai 2015) $
- * $Revision: 2464 $
+ * $Date: 2015-12-30 21:52:54 +0100 (Mi, 30 Dez 2015) $
+ * $Revision: 2705 $
  */
 
 #ifndef BAD_WALDSEE_DWARF_H__
@@ -78,7 +78,7 @@ struct sDwarf
 		unsigned short		BO_White1;			/**< lower left white LED of the dwarf	*/		
 		unsigned short		BO_White2;			/**< upper right white LED of the dwarf	*/		
 		unsigned short  	BO_Desk_Red;			/**< red LED on the switchboard	*/
-		unsigned short  	BO_Desk_Green;			/**< green LED on the switchboard	*/
+		unsigned short  	BO_Desk_White;			/**< lunar white LED on the switchboard	*/
 		char			mainsName[NAMELEN];		/**< Name of the main signal combined with this dwarf	*/
 		struct sMain *		pMain;				/**< Pointer to the main signal combined with this dwarf	*/
 		_Bool			mainsClear;			/**< true if combined main signal has clear aspect (HP1, HP2)	*/
@@ -124,8 +124,8 @@ _Bool dwarfGetName(const struct sDwarf * const pDwarf, /*@out@*/char * const nam
 	unsigned short dwarfGetBO_Desk_Red(const struct sDwarf * const pDwarf);
 	void dwarfSetBO_Desk_Red(struct sDwarf * const pDwarf, const unsigned short handle);
 
-	unsigned short dwarfGetBO_Desk_Green(const struct sDwarf * const pDwarf);
-	void dwarfSetBO_Desk_Green(struct sDwarf * const pDwarf, const unsigned short handle);
+	unsigned short dwarfGetBO_Desk_White(const struct sDwarf * const pDwarf);
+	void dwarfSetBO_Desk_White(struct sDwarf * const pDwarf, const unsigned short handle);
 
 	_Bool dwarfGetMainName(const struct sDwarf * const pDwarf, /*@out@*/char * const name);
 	void dwarfSetMainName(struct sDwarf * const pDwarf, const char * const name); 

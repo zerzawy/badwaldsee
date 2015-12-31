@@ -23,9 +23,9 @@
 /* function for the 2 x 16 Bit output board
  * of Bad Waldsee switchboard
  *
- * $Author: kurt $
- * $Date: 2015-05-18 22:31:02 +0200 (Mon, 18. Mai 2015) $
- * $Revision: 2464 $
+ * $Author: Kurt $
+ * $Date: 2015-08-05 08:06:23 +0200 (Mi, 05 Aug 2015) $
+ * $Revision: 2537 $
  */
 
 #ifndef BADWALDSEE_AP216_H

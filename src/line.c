@@ -40,6 +40,8 @@
 #include <string.h>
 #include "log.h"
 #include "line.h"
+#include "parser/parser.h"
+#include "registers.h"
 
 
 /*@only@*/ /*@null@*/ static struct sLine * m_pLines = NULL;	/**< Pointer to the first line	*/
@@ -86,6 +88,9 @@ void linesDestroy(void)
 	LOG_INF("ended");
 }
 
+/**
+ * init function for lines
+ */
 void linesInit(void)
 {
 	struct sLine *	pLine = m_pLines;
@@ -110,6 +115,10 @@ void linesInit(void)
 		#endif
 
 		#ifdef DOMINO55
+			pLine->pReqLeft		= NULL;
+			pLine->ReqLeftWithButton= false;
+			pLine->pReqRight	= NULL;
+			pLine->ReqRightWithButton	= false;
 		#endif
 
 		pLine->nrSections = 0;
@@ -248,7 +257,7 @@ void lineSetToRight(struct sLine * const pLine, const _Bool toRight)
 
 /**
  * Function to set the flag showing that allowance to send train was received
- * @param pLine	pointer to the line 
+ * @param pLine		pointer to the line 
  * @exception		assert on NULL pointer
  */
 void lineGetAllowance(struct sLine * const pLine)
@@ -418,7 +427,7 @@ void lineHp1(struct sLine * const pLine)
 	}
 
 	/**
-	 * Function to get the led for the EaM (Erlaubnisabgabe Malder), a white LED showing that the direction 
+	 * Function to get the led for the EaM (Erlaubnisabgabe Melder), a white LED showing that the direction 
 	 * changed towards my station
 	 * @param pLine		pointer to the line
 	 * @return		register handle of the EaM led
@@ -432,7 +441,7 @@ void lineHp1(struct sLine * const pLine)
 	}
 
 	/**
-	 * Function to set the led for the EaM (Erlaubnisabgabe Malder), a white LED showing that the direction 
+	 * Function to set the led for the EaM (Erlaubnisabgabe Melder), a white LED showing that the direction 
 	 * changed towards my station
 	 * @param pLine	pointer to the line
 	 * @param handle	register handle of the EaM led
@@ -446,7 +455,7 @@ void lineHp1(struct sLine * const pLine)
 	}
 
 	/**
-	 * Function to get the led for the EeM (Erlaubnisempfangs Malder), a white LED showing that the direction 
+	 * Function to get the led for the EeM (Erlaubnisempfangs Melder), a white LED showing that the direction 
 	 * changed away from my station (I am allowed to send train)
 	 * @param pLine		pointer to the line
 	 * @return		register handle of the EeM led
@@ -460,7 +469,7 @@ void lineHp1(struct sLine * const pLine)
 	}
 
 	/**
-	 * Function to set the led for the EaM (Erlaubnisabgabe Malder), a white LED showing that the direction 
+	 * Function to set the led for the EaM (Erlaubnisabgabe Melder), a white LED showing that the direction 
 	 * changed away from my station (I am allowed to send train)
 	 * @param pLine		pointer to the line
 	 * @param handle	register handle of the EeM led
@@ -501,6 +510,114 @@ void lineHp1(struct sLine * const pLine)
 #endif
 
 #ifdef DOMINO55
+	/**
+	 * Function to get the button for request to left
+	 * @param pLine		pointer to the line
+	 * @return		pointer to the button for request to left
+	 * @exception		assert on NULL pointer
+	 */
+	const struct sButton * lineGetReqLeft(const struct sLine * const pLine)
+	{
+		assert(NULL != pLine);
+
+		return pLine->pReqLeft;
+	}
+
+	/**
+	 * Function to set the button for request to left
+	 * @param pLine		pointer to the line 
+	 * @param pButton	pointer to the button for request to left
+	 * @exception		assert on NULL pointer
+	 */
+	void lineSetReqLeft(struct sLine * const pLine, struct sButton * const pButton)
+	{
+		assert(NULL != pLine);
+
+		pLine->pReqLeft = pButton;
+	}
+
+	/**
+	 * Function to get the flag telling that with the request Left key also the control 
+	 *  key must be pushed
+	 * @param pLine		pointer to the line
+	 * @return		true if the control button must be pushed as well
+	 * @exception		assert on NULL pointer
+	 */
+	_Bool lineGetReqLeftWithButton(const struct sLine * const pLine)
+	{
+		assert(NULL != pLine);
+
+		return pLine->ReqLeftWithButton;
+	}
+
+	/**
+	 * Function to set the flag telling that with the request Left key also the control
+	 *  key must be pushed
+	 * @param pLine		pointer to the line
+	 * @param with		if the control button must be pushed as well
+	 * @exception		assert on NULL pointer
+	 */
+	void lineSetReqLeftWithButton(struct sLine * const pLine, const _Bool with)
+	{
+		assert(NULL != pLine);
+
+		pLine->ReqLeftWithButton = with;
+	}
+
+	/**
+	 * Function to get the button for request to right
+	 * @param pLine		pointer to the line
+	 * @return		pointer to the button for request to right
+	 * @exception		assert on NULL pointer
+	 */
+	const struct sButton * lineGetReqRight(const struct sLine * const pLine)
+	{
+		assert(NULL != pLine);
+
+		return pLine->pReqRight;
+	}
+
+	/**
+	 * Function to set the button for request to right
+	 * @param pLine		pointer to the line 
+	 * @param pButton	pointer to the button for request to right
+	 * @exception		assert on NULL pointer
+	 */
+	void lineSetReqRight(struct sLine * const pLine, struct sButton * const pButton)
+	{
+		assert(NULL != pLine);
+
+		pLine->pReqRight = pButton;
+	}
+
+	/**
+	 * Function to get the flag telling that with the request Right key also the control 
+	 *  key must be pushed
+	 * @param pLine		pointer to the line
+	 * @return		true if the control button must be pushed as well
+	 * @exception		assert on NULL pointer
+	 */
+	_Bool lineGetReqRightWithButton(const struct sLine * const pLine)
+	{
+		assert(NULL != pLine);
+
+		return pLine->ReqRightWithButton;
+	}
+
+	/**
+	 * Function to set the flag telling that with the request Right key also the control
+	 *  key must be pushed
+	 * @param pLine		pointer to the line
+	 * @param with		if the control button must be pushed as well
+	 * @exception		assert on NULL pointer
+	 */
+	void lineSetReqRightWithButton(struct sLine * const pLine, const _Bool with)
+	{
+		assert(NULL != pLine);
+
+		pLine->ReqRightWithButton = with;
+	}
+
 #endif
 
 /**
@@ -723,8 +840,11 @@ void lineSetBlockFrom(struct sLine * const pLine, struct sBlock * const pBlock, 
 				/* this state can be left in two ways:
 				 * by becoming occupied.
 				 * by receiving allowance
+				 *  Note: in SBB, allowance is automatic if requested 
+				 *        simplification: request cannot be blocked yet
 				 */
 
+				/* part with occupancy	*/
 				for(i = 0; i < pLine->nrTo; i++)
 				{
 					if(! blockIsFree(pLine->pTo[i]));
@@ -736,6 +856,7 @@ void lineSetBlockFrom(struct sLine * const pLine, struct sBlock * const pBlock, 
 					state = LineToMeOccupied;
 				}
 
+				/* getting allowance	*/
 				if(pLine->getAllowance)
 				{
 					state = LineFromMeNeutral;
@@ -837,6 +958,16 @@ void lineSetBlockFrom(struct sLine * const pLine, struct sBlock * const pBlock, 
 #endif
 
 #ifdef DOMINO55
+	/**
+	 * state machine function
+	 * provides the function when being inside the state given in pLine->eState
+	 * @param pLine		pointer to the line leaving the state
+	 */
+	static enum eLineState lineStateBehaviour(struct sLine * const pLine);
+	static enum eLineState lineStateBehaviour(struct sLine * const pLine)
+	{
+		return LineNeutral;
+	}
 #endif
 
 #ifdef SPDR60
@@ -913,44 +1044,34 @@ void lineSetBlockFrom(struct sLine * const pLine, struct sBlock * const pBlock, 
 
 		case LineToMeNeutral:
 			LOG_STW("Einspurstrecke %s Erlaubnis abgegeben", pLine->name);
-			registerBitSet(pLine->BO_EaM);
 			break;
 
 		case LineToMeOccupied:
 			LOG_STW("Einspurstrecke %s belegt", pLine->name);
-			registerBitSet(pLine->BO_EaM);
 			break;
 
-		case LineToMeHp1:
+		case LineToMe1:
 			LOG_STW("Einspurstrecke %s Einfahrsignal offen", pLine->name);
-			registerBitSet(pLine->BO_EaM);
 			break;
 
-		case LineToMeHp0:
+		case LineToMeHalt:
 			LOG_STW("Einspurstrecke %s Einfahrsignal geschlossen", pLine->name);
-			registerBitSet(pLine->BO_EaM);
 			break;
 
 		case LineFromMeNeutral:
-			LOG_STW("Einspurstrecke %s Erlaubnis erhalten", pLine->name);
-			registerBitSet(pLine->BO_EeM);
+			LOG_STW("Einspurstrecke %s Anforderung gegeben", pLine->name);
 			break;
 
-		case LineFromMeHp1:
+		case LineFromMe1:
 			LOG_STW("Einspurstrecke %s Ausfahrsignal offen", pLine->name);
-			registerBitSet(pLine->BO_EeM);
-			registerBitSet(pLine->BO_ASpM);
 			break;
 
-		case LineFromMeHp0:
+		case LineFromMeHalt:
 			LOG_STW("Einspurstrecke %s Ausfahrsignal geschlossen", pLine->name);
-			registerBitSet(pLine->BO_EeM);
-			registerBitSet(pLine->BO_ASpM);
 			break;
 
 		case LineFromMeOccupied:
 			LOG_STW("Einspurstrecke %s belegt", pLine->name);
-			registerBitSet(pLine->BO_EeM);
 			break;
 
 		default:
@@ -987,8 +1108,6 @@ void lineSetBlockFrom(struct sLine * const pLine, struct sBlock * const pBlock, 
 	static void lineStateExit(struct sLine * const pLine)
 	{
 		assert(NULL != pLine);
-
-						 
 	}
 #endif
 

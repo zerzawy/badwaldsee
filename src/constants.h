@@ -26,9 +26,9 @@
  */
 
 /*
- * $Author: kurt $
- * $Date: 2015-06-23 22:35:22 +0200 (Die, 23. Jun 2015) $
- * $Revision: 2490 $
+ * $Author: Kurt $
+ * $Date: 2015-08-05 08:06:23 +0200 (Mi, 05 Aug 2015) $
+ * $Revision: 2537 $
  */
 
 

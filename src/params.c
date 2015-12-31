@@ -1,6 +1,6 @@
-/*
+/* 
  * This file is part of Raspberry Pi steuert Modelleisenbahn
- * Copyright(C)  2009 - 2015 Kurt Zerzawy www.zerzawy.ch
+ * Copyright(C)  2008, 2009 Kurt Zerzawy www.zerzawy.ch
  * 
  * Raspberry Pi steuert Modelleisenbahn is free software:
  * you can redistribute it and/or modify it under the terms of the
@@ -22,16 +22,26 @@
 
 /**
  * \file
- * Logging of errors and switchboard events to console
+ * General parameters
  * \author
  * Kurt Zerzawy
  */
 
 /*
+ * Spreitenbacher Eisenbahn Amateur Klub SPEAK
+ * www.speak.li
+ *
  * $Author: Kurt $
  * $Date: 2015-08-05 08:06:23 +0200 (Mi, 05 Aug 2015) $
  * $Revision: 2537 $
  */
 
-#include "log.h"
+#ifndef PARAMS_H__
+#define PARAMS_H__
 
+#include "stdint.h"
+#include "params.h"
+
+
+
+#endif /* PARAMS_H__ */

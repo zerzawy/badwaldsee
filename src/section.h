@@ -21,9 +21,9 @@
  * functions for single sections and LEDs in the switchboard
  * Spreitenbacher Eisenbahn Amateur Klub SPEAK
  * www.speak.li
- * $Author: kurt $
- * $Date: 2015-06-23 22:35:22 +0200 (Die, 23. Jun 2015) $
- * $Revision: 2490 $
+ * $Author: Kurt $
+ * $Date: 2015-08-05 08:06:23 +0200 (Mi, 05 Aug 2015) $
+ * $Revision: 2537 $
  */
 
 #ifndef BAD_WALDSEE_SECTION_H__

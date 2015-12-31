@@ -29,9 +29,9 @@
 * Spreitenbacher Eisenbahn Amateur Klub SPEAK
 * www.speak.li
 *
-* $Author: kurt $
-* $Date: 2015-05-18 22:31:02 +0200 (Mon, 18. Mai 2015) $
-* $Revision: 2464 $
+* $Author: Kurt $
+* $Date: 2015-11-14 23:10:12 +0100 (Sa, 14 Nov 2015) $
+* $Revision: 2672 $
 */
 
 #ifndef BAD_WALDSEE_BUTTONS_H__

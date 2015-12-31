@@ -28,9 +28,9 @@
  */
 
 /*
- * $Author: kurt $
- * $Date: 2015-06-23 22:35:22 +0200 (Die, 23. Jun 2015) $
- * $Revision: 2490 $
+ * $Author: Kurt $
+ * $Date: 2015-11-14 23:10:12 +0100 (Sa, 14 Nov 2015) $
+ * $Revision: 2672 $
  */
 
 #include <stdbool.h>

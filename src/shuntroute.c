@@ -28,9 +28,9 @@
  */
 
 /*
- * $Author: kurt $
- * $Date: 2015-06-23 22:35:22 +0200 (Die, 23. Jun 2015) $
- * $Revision: 2490 $
+ * $Author: Kurt $
+ * $Date: 2015-11-14 23:10:12 +0100 (Sa, 14 Nov 2015) $
+ * $Revision: 2672 $
  */
 
 #include <stdbool.h>
@@ -1217,7 +1217,7 @@ void shuntrouteProcess(void)
 	 * @param	pDwarf pointer to the destination dwarf of the shuntroute 
 	 *		to be canceled
 	 */
-	void shuntrouteCancel(const struct sDwarf * const pDwarf)
+	void shuntrouteCancelDest(const struct sDwarf * const pDest)
 	{
 		unsigned short		i;
 		struct sShuntroute *	pShuntroute;
@@ -1227,7 +1227,7 @@ void shuntrouteProcess(void)
 		pShuntroute = m_pShuntroute;
 		for(i = 0; i < m_nrShuntroute; i++)
 		{
-			if(pDwarf == pShuntroute->dest)
+			if(pDest == pShuntroute->dest)
 			{
 				pShuntroute->dissolve = true;
 			}

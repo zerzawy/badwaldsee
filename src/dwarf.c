@@ -29,8 +29,8 @@
 
 /*
  * $Author: kurt $
- * $Date: 2015-05-18 22:31:02 +0200 (Mon, 18. Mai 2015) $
- * $Revision: 2464 $
+ * $Date: 2015-12-30 21:52:54 +0100 (Mi, 30 Dez 2015) $
+ * $Revision: 2705 $
  */
 
 #include <assert.h>
@@ -108,7 +108,7 @@ void dwarfInit(void)
 			pDwarf->BO_White1	= NONEVALUE;
 			pDwarf->BO_White2	= NONEVALUE;
 			pDwarf->BO_Desk_Red	= NONEVALUE;
-			pDwarf->BO_Desk_Green	= NONEVALUE;
+			pDwarf->BO_Desk_White	= NONEVALUE;
 			pDwarf->mainsName[0]	= '\0';
 			pDwarf->mainsClear		= false;
 		#endif
@@ -153,7 +153,7 @@ void dwarfInit(void)
 						registerBitClr(pDwarf->BO_White2);
 						registerBitClr(pDwarf->BO_Red1);
 						registerBitClr(pDwarf->BO_Red2);
-						registerBitClr(pDwarf->BO_Desk_Green);
+						registerBitClr(pDwarf->BO_Desk_White);
 						registerBitClr(pDwarf->BO_Desk_Red);
 					}
 					else 
@@ -170,7 +170,7 @@ void dwarfInit(void)
 							registerBitClr(pDwarf->BO_White2);
 							registerBitSet(pDwarf->BO_Red1);
 							registerBitSet(pDwarf->BO_Red2);
-							registerBitClr(pDwarf->BO_Desk_Green);
+							registerBitClr(pDwarf->BO_Desk_White);
 							registerBitSet(pDwarf->BO_Desk_Red);
 							break;
 
@@ -180,7 +180,7 @@ void dwarfInit(void)
 							registerBitSet(pDwarf->BO_White2);
 							registerBitClr(pDwarf->BO_Red1);
 							registerBitClr(pDwarf->BO_Red2);
-							registerBitSet(pDwarf->BO_Desk_Green);
+							registerBitSet(pDwarf->BO_Desk_White);
 							registerBitClr(pDwarf->BO_Desk_Red);
 							break;
 
@@ -190,7 +190,7 @@ void dwarfInit(void)
 							registerBitSet(pDwarf->BO_White2);
 							registerBitClr(pDwarf->BO_Red1);
 							registerBitClr(pDwarf->BO_Red2);
-							registerBitClr(pDwarf->BO_Desk_Green);
+							registerBitClr(pDwarf->BO_Desk_White);
 							registerBitClr(pDwarf->BO_Desk_Red);
 							break;
 
@@ -552,15 +552,15 @@ void dwarfSetName(struct sDwarf * const pDwarf, const char * const name)
 	}
 
 	/**
-	 * function to get the register of the green desk led
+	 * function to get the register of the white desk led
 	 * @param pDwarf	pointer to the dwarf
-	 * @return		register handle of the green desk led, NONEVALUE on NULL pointer
+	 * @return		register handle of the white desk led, NONEVALUE on NULL pointer
 	 */
-	unsigned short dwarfGetBO_Desk_Green(const struct sDwarf * const pDwarf)
+	unsigned short dwarfGetBO_Desk_White(const struct sDwarf * const pDwarf)
 	{
 		if(NULL != pDwarf)
 		{
-			return pDwarf->BO_Desk_Green;
+			return pDwarf->BO_Desk_White;
 		}
 		else
 		{
@@ -569,16 +569,16 @@ void dwarfSetName(struct sDwarf * const pDwarf, const char * const name)
 	}
 
 	/**
-	 * function to set the register of the green desk led
+	 * function to set the register of the white desk led
 	 * @param pDwarf	pointer to the dwarf
-	 * @param handle	register handle of the green desk led
+	 * @param handle	register handle of the white desk led
 	 * @exception		assert on NULL pointer
 	 */
-	void dwarfSetBO_Desk_Green(struct sDwarf * const pDwarf, const unsigned short handle)
+	void dwarfSetBO_Desk_White(struct sDwarf * const pDwarf, const unsigned short handle)
 	{
 		assert(NULL != pDwarf);
 
-		pDwarf->BO_Desk_Green = handle;
+		pDwarf->BO_Desk_White = handle;
 	}
 
 	/**

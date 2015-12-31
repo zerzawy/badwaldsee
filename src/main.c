@@ -34,9 +34,9 @@
  */
 
 /*
- * $Author: kurt $
- * $Date: 2015-05-27 14:21:39 +0200 (Mit, 27. Mai 2015) $
- * $Revision: 2471 $
+ * $Author: Kurt $
+ * $Date: 2015-11-14 23:10:12 +0100 (Sa, 14 Nov 2015) $
+ * $Revision: 2672 $
  */
 
 #include <time.h>

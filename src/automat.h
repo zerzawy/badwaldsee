@@ -60,7 +60,7 @@ struct sAutomat
 
 	struct sRoute *		pAutomatedRoute;	/**< route to be switched when conditions apply	*/
 
-	#ifdef DOMONO55
+	#ifdef DOMINO55
 		struct sButton *	pOnButton;		/**< button to switch the automat on	*/
 		struct sButton *	pOffButton;		/**< button to switch the automat off	*/
 	#endif

@@ -21,9 +21,9 @@
  * functions for shunting routes 
  * Spreitenbacher Eisenbahn Amateur Klub SPEAK
  * www.speak.li
- * $Author: kurt $
- * $Date: 2015-06-23 22:35:22 +0200 (Die, 23. Jun 2015) $
- * $Revision: 2490 $
+ * $Author: Kurt $
+ * $Date: 2015-11-14 23:10:12 +0100 (Sa, 14 Nov 2015) $
+ * $Revision: 2672 $
  */
 
 #ifndef BAD_WALDSEE_SHUNTROUTE_H_
@@ -127,7 +127,7 @@ void shuntrouteTwoButtons(const struct sDwarf const * pDwarf1, const struct sDwa
 #endif
 
 #ifdef DOMINO55
-	void shuntrouteCancel(const struct sDwarf const * pDest);
+	void shuntrouteCancelDest(const struct sDwarf const * pDest);
 	void shuntrouteOneButton(const struct sDwarf const * pDwarf);
 #endif
 

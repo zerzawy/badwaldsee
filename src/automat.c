@@ -269,7 +269,7 @@ void automatSetAutomatedRoute(struct sAutomat * const pAutomat, struct sRoute * 
 	pAutomat->pAutomatedRoute = pRoute;
 }
 
-#ifdef DOMONO55
+#ifdef DOMINO55
 	/**
 	 * Function to get the button used to switch on the automat
 	 * @param pAutomat	pointer to the automat

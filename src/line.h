@@ -49,6 +49,8 @@
 	{
 		LineNeutral,
 		LineToMeNeutral,
+		LineToMeHp1,
+		LineToMeHp0,
 		LineToMeOccupied,
 		LineFromMeNeutral,
 		LineFromMeHp1,
@@ -61,6 +63,15 @@
 	enum eLineState
 	{
 		LineNeutral,
+		LineToMeNeutral,
+		LineToMe1,
+		LineToMeHalt,
+		LineToMeOccupied,
+		LineFromMeNeutral,
+		LineFromMe1,
+		LineFromMeHalt,
+		LineFromMeOccupied
+
 	};
 #endif
 
@@ -94,6 +105,11 @@ struct sLine
 	#endif
 
 	#ifdef DOMINO55
+		struct sButton *	pReqLeft;		/**< request to left (Anfrage links)			*/
+		_Bool			ReqLeftWithButton;	/**< true if request to left has control key		*/
+
+		struct sButton *	pReqRight;		/**< request to right (Anfrage rechts)			*/
+		_Bool			ReqRightWithButton;	/**< true if request to right has control key		*/
 	#endif
 
 	unsigned short		nrSections;		/**< number of sections between block and entry signal	*/
@@ -159,6 +175,20 @@ void lineHp1(struct sLine * const pLine);
 
 	const _Bool lineGetSelfblock(const struct sLine * const pLine);
 	void lineSetSelfblock(struct sLine * const pLine, const _Bool selfblock);
+#endif
+
+#ifdef DOMINO55
+	const struct sButton * lineGetReqLeft(const struct sLine * const pLine);
+	void lineSetReqLeft(struct sLine * const pLine, struct sButton * const pButton);
+
+	_Bool lineGetReqLeftWithButton(const struct sLine * const pLine);
+	void lineSetReqLeftWithButton(struct sLine * const pLine, const _Bool reqLeftWithButton);
+
+	const struct sButton * lineGetReqRight(const struct sLine * const pLine);
+	void lineSetReqRight(struct sLine * const pLine, struct sButton * const pButton);
+
+	_Bool lineGetReqRightWithButton(const struct sLine * const pLine);
+	void lineSetReqRightWithButton(struct sLine * const pLine, const _Bool reqRightWithButton);
 #endif
 
 unsigned short lineAddSection(struct sLine * const pLine, struct sSection * const pSection);

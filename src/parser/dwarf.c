@@ -29,8 +29,8 @@
 
 /*
  * $Author: kurt $
- * $Date: 2015-05-18 22:31:02 +0200 (Mon, 18. Mai 2015) $
- * $Revision: 2464 $
+ * $Date: 2015-12-30 21:52:54 +0100 (Mi, 30 Dez 2015) $
+ * $Revision: 2705 $
  */
 
 #include <string.h>
@@ -76,7 +76,7 @@
 		dwarfSetBO_Desk_Red(ptr, parserExpectRegister("Name der roten Tisch-LED erwartet"));
 
 		parserExpectTokenNeu(tokTischLEDweiss);
-		dwarfSetBO_Desk_Green(ptr, parserExpectRegister("Name der weissen Tisch-LED erwartet"));
+		dwarfSetBO_Desk_White(ptr, parserExpectRegister("Name der weissen Tisch-LED erwartet"));
 
         	tok = parserGetToken();
 		if(tokRBracket == tok)
@@ -245,7 +245,7 @@ void dwarfParser(void)
 		registerGetName(dwarfGetBO_Desk_Red(ptr), name);
 		fprintf(stdout, "\t\t\t\tTischLEDrot\t%s\n", name); 
 		
-		registerGetName(dwarfGetBO_Desk_Green(ptr), name);
+		registerGetName(dwarfGetBO_Desk_White(ptr), name);
 		fprintf(stdout, "\t\t\t\tTischLEDweiss\t%s\n", name); 
 		
 		pMain = dwarfGetMain(ptr);
